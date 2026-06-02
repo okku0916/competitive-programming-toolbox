@@ -1,10 +1,10 @@
 // src/App.tsx
 import React from 'react';
-import HomePage from "./pages/RandomGenerator";
+import RandomGenerator from "./pages/random-generator";
 
 function App() {
   return (
-    <HomePage />
+    <RandomGenerator />
     // <div>
     //   <h1>Competitive Programming Toolbox</h1>
     //   <p>開発</p>

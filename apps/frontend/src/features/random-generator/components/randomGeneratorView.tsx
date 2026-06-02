@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { useRef } from "react";
+import InputArea from "./input-area";
+import { ParseInput } from "../utils/parse-input";
+import { generate } from "../utils/random-generator.ts";
 
-export default function HomePage() {
+export default function RandomGeneratorView () {
   const INPUT_TEXTAREA_WIDTH = "600px";
   const INPUT_TEXTAREA_HEIGHT = "280px";
   const OUTPUT_TEXTAREA_WIDTH = "600px";
   const OUTPUT_TEXTAREA_HEIGHT = "280px";
   const ERROR_TEXTAREA_WIDTH = "1200px";
   const ERROR_TEXTAREA_HEIGHT = "200px";
-  const [OutputText, setOutputText] = useState("");
-  const [ErrorText, setErrorText] = useState("");
-  const inputRef = useRef(null);
+  const CENTER_GAP = "20px";
+  const [outputText, setOutputText] = useState("");
+  const [errorText, setErrorText] = useState("");
+  const [inputText, setInputText] = useState("");
 
     //Clearボタン
     const clearHandle = () => {
@@ -19,34 +23,35 @@ export default function HomePage() {
 
     //生成ボタン
   const generateHandle = () => {
-    console.log(inputRef.current.value)
-    let number = 10;
-    let str = "" + number + "\n";
-    for(let i = 0; i < number; i ++){
-        str += i + " ";
-    setOutputText(`${(str)}\n`);
-    }
+    let parsedNum = ParseInput(inputText);
+    console.log("In RandomGeneratorView:parsed num " + parsedNum);
+    let generateStr = generate(parsedNum);
+    
+    setOutputText(generateStr);
     setErrorText("エラーのテキストの表示");
   };
+  const copyHandle = () => {
+    navigator.clipboard.writeText(outputText)
+  }
 
 
 
 return (
   <div>
     <h1>ランダム入力生成</h1>
-    <div style={{ display: "flex", gap: "20px" }}>
+    <div style={{ display: "flex", gap: CENTER_GAP }}>
       {/* 左側 */}
       <div>
         入力エリア
         <br />
-        <textarea
-          ref={inputRef}
+          <textarea
+        //   ref={inputRef}
           style={{
-            width: INPUT_TEXTAREA_WIDTH,
-            height: INPUT_TEXTAREA_HEIGHT,
+            width: "600px",
+            height: "280px"
           }}
-          // value={inputTextArea}
-          // onChange={}
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
         />
         <br />
 
@@ -65,13 +70,23 @@ return (
             width: OUTPUT_TEXTAREA_WIDTH,
             height: OUTPUT_TEXTAREA_HEIGHT,
           }}
-          value={OutputText}
+          value={outputText}
           onChange={(e) => setOutputText(e.target.value)}//textAreaに変化があったときに呼ばれる
         />
         <br />
 
         <button onClick={clearHandle}>
           Clear
+        </button>
+        <button onClick={copyHandle}>
+          Copy
+        </button>
+      </div>
+      <div>
+        Template Generator
+        <button onClick={generateHandle}>
+          N <br />
+          Ai ... An
         </button>
       </div>
     </div>
@@ -82,7 +97,7 @@ return (
             width: ERROR_TEXTAREA_WIDTH,
             height: ERROR_TEXTAREA_HEIGHT,
           }}
-          value={ErrorText}
+          value={errorText}
 
           
         />
