@@ -1,5 +1,3 @@
-
-
 //引数はstringでなくてもいいがparseInputで変換擦れたものを返すつもり
 export function generate(num: number){
     //現在テキトーに書いている...ｺﾞﾒﾝ
