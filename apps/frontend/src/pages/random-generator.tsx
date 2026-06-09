@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ParseInput } from "../features/random-generator/utils/ParseInput.ts";
-import { generate } from "../features/random-generator/utils/RandomGenerate.ts";
+import { ParseInput } from "../features/random-generator/utils/parseInput.ts";
+import { generate } from "../features/random-generator/utils/randomGenerate.ts";
 //..で1つ上の階層 VSコードでは見ている階層によって赤線が出るかもしれないが問題ない
-import Header from "../components/header";
+import Header from "../components/Header";
 import InputArea from "../features/random-generator/components/InputArea.tsx";
 import OutputArea from "../features/random-generator/components/OutputArea.tsx";
 
