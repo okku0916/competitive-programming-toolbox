@@ -6,6 +6,9 @@ import RandomGenerator from "./pages/random-generator";
 import Visualizer from './pages/visualizer';
 import TestPage from './pages/test-page';
 
+import ArrayVisualizer from './features/visualizer/components/ArrayVisualizer';
+import GraphVisualizer from './features/visualizer/components/GraphVisualizer';
+
 function App() {
   return (
     <div>
@@ -16,8 +19,14 @@ function App() {
           <Route path="/random-generator" element={<RandomGenerator />} />
           <Route path="/visualizer" element={<Visualizer />} />
           <Route path="/test-page" element={<TestPage />} />
-        </Routes>
 
+          <Route path="/visualizer" element={<Visualizer />}>
+            {/* /visualizer にアクセスしたら VisualizerPage を表示 */}
+            <Route index element={<Navigate to="array" replace />} />
+            <Route path="array" element={<ArrayVisualizer />} />
+            <Route path="graph" element={<GraphVisualizer />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </div>
   );
