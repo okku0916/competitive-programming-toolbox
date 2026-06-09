@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { ParseInput } from "../features/random-generator/utils/parseInput.ts";
-import { generate } from "../features/random-generator/utils/randomGenerate.ts";
+import { parseInput } from "../features/random-generator/utils/parseInput";
+import { randomGenerate } from "../features/random-generator/utils/randomGenerate";
 //..で1つ上の階層 VSコードでは見ている階層によって赤線が出るかもしれないが問題ない
 import Header from "../components/Header";
-import InputArea from "../features/random-generator/components/InputArea.tsx";
-import OutputArea from "../features/random-generator/components/OutputArea.tsx";
+import InputArea from "../features/random-generator/components/InputArea";
+import OutputArea from "../features/random-generator/components/OutputArea";
 
 
 export default function RandomGenerator () {
@@ -21,9 +21,9 @@ export default function RandomGenerator () {
 
     //生成ボタン
   const handleGenerate = () => {
-    let parsedNum = ParseInput(inputText);
+    let parsedNum = parseInput(inputText);
     console.log("In RandomGeneratorView:parsed num " + parsedNum);
-    let generateStr = generate(parsedNum);
+    let generateStr = randomGenerate(parsedNum);
     
     setOutputText(generateStr);
     setErrorText("エラーのテキストの表示");

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, Outlet } from 'react-router-dom';
 import Header from "../components/Header";
-export default function Visualizer () {
+export default function VisualizerPage () {
 
 return (
   <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

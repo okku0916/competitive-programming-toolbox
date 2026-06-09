@@ -2,7 +2,7 @@
 
 
 //現在最初の文字から数字が続いている分の整数のみとってきている。num出ない場合は0を返している
-export function ParseInput(text: string) {
+export function parseInput(text: string) {
     console.log("In ParseInput(): " + text);
     let i = 0;
     let resultNum = 0;

@@ -2,9 +2,9 @@
 import React from 'react';
 
 import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
-import RandomGenerator from "./pages/random-generator";
-import Visualizer from './pages/visualizer';
-import TestPage from './pages/test-page';
+import RandomGenerator from "./pages/RandomGeneratorPage";
+import Visualizer from './pages/VisualizerPage';
+import TestPage from './pages/TestPage';
 
 import ArrayVisualizer from './features/visualizer/components/ArrayVisualizer';
 import GraphVisualizer from './features/visualizer/components/GraphVisualizer';
