@@ -12,8 +12,8 @@ return (
       <div style={{ display: 'flex', flex: 1 }}>
         
         {/* 左サイドバー */}
-        <aside style={{ width: '240px', backgroundColor: '#f5f5f5', padding: '24px', borderRight: '1px solid #ddd' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>ビジュアライザ</h2>
+        <aside style={{ width: '120px', backgroundColor: '#f5f5f5', padding: '24px', borderRight: '1px solid #ddd' }}>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Visualizer</h2>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <Link to="/visualizer/array" style={{ textDecoration: 'none', color: '#333' }}>配列・グリッド</Link>
             <Link to="/visualizer/graph" style={{ textDecoration: 'none', color: '#333' }}>グラフ・木構造</Link>
