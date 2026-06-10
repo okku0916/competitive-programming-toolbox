@@ -13,14 +13,14 @@ return (
         
         {/* 左サイドバー */}
         <aside style={{ width: '120px', backgroundColor: '#f5f5f5', padding: '24px', borderRight: '1px solid #ddd' }}>
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '16px' }}>Visualizer</h2>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Link to="/visualizer/array" style={{ textDecoration: 'none', color: '#333' }}>配列・グリッド</Link>
+          <h2 style={{ fontSize: '1.2rem', marginBottom: '32px' }}>Visualizer</h2>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <Link to="/visualizer/1d-array" style={{ textDecoration: 'none', color: '#333' }}>1次元配列</Link>
             <Link to="/visualizer/graph" style={{ textDecoration: 'none', color: '#333' }}>グラフ・木構造</Link>
           </nav>
         </aside>
 
-        {/* 右側のメイン画面（コメントアウトを解除し、flex: 1 を指定） */}
+        {/* 右側のメイン画面*/}
         <main style={{ padding: '24px', flex: 1, backgroundColor: '#fff' }}>
           <Outlet />
         </main>

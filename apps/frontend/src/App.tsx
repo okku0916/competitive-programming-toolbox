@@ -22,8 +22,8 @@ function App() {
 
           <Route path="/visualizer" element={<Visualizer />}>
             {/* /visualizer にアクセスしたら VisualizerPage を表示 */}
-            <Route index element={<Navigate to="array" replace />} />
-            <Route path="array" element={<ArrayVisualizer />} />
+            <Route index element={<Navigate to="1d-array" replace />} />
+            <Route path="1d-array" element={<ArrayVisualizer />} />
             <Route path="graph" element={<GraphVisualizer />} />
           </Route>
         </Routes>
