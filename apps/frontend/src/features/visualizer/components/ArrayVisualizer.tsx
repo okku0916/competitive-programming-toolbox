@@ -8,9 +8,9 @@ export default function ArrayVisualizer () {
   const size = lines[0] ? parseInt(lines[0], 10) : 0; // 入力されたサイズ
   const inputArray = lines[1] ? lines[1].split(' ') : []; // 入力された配列の要素
   const elements = Array.from({ length: size }, (_, i) => inputArray[i] ?? "");
-  const cumulativeSums = elements.reduce((acc, num) => {
-    const val = parseInt(num, 10) || 0;
-    acc.push(acc[acc.length - 1] + val);
+  const cumulativeSums = elements.reduce((acc, element) => {
+    const num = parseInt(element, 10) || 0;
+    acc.push(acc[acc.length - 1] + num);
     return acc;
   }, [0]);
 
@@ -48,7 +48,7 @@ return (
         </label>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap'}}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '12px'}}>
         {elements.map((element, index) => (
           <div
             key={index}
@@ -72,9 +72,9 @@ return (
           </div>
         ))}
       </div>
-      <p></p>
+
       {isCumulativeSum && (<div style={{ display: 'flex', flexWrap: 'wrap'}}>
-        {cumulativeSums.map((line, index) => (
+        {cumulativeSums.map((element, index) => (
           <div
             key={index}
             style={{
@@ -93,7 +93,7 @@ return (
               padding: '4px',
               boxSizing: 'border-box'
             }}>
-            {line}
+            {element}
           </div>
         ))} 
       </div>)}

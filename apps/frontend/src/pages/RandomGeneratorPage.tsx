@@ -7,7 +7,7 @@ import InputArea from "../features/random-generator/components/InputArea";
 import OutputArea from "../features/random-generator/components/OutputArea";
 
 
-export default function RandomGenerator () {
+export default function RandomGeneratorPage () {
   //ここでsetText関数とtextの関数を勝手に作ってくれている
   // setText(text1)でtextをtext1に変えてくれる
   const [outputText, setOutputText] = useState("");
