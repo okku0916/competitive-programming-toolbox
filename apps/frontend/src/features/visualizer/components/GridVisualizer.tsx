@@ -17,6 +17,7 @@ export default function gridVisualizer () {
   const [goalYText, setGoalYText] = useState("")
 
   const { height, width, grid } = gridParseInput(inputText);
+  // text内の最初の文字を整数に変換する
   const startX = startXText.length > 0 ? Number(startXText[0]) : -1;
   const startY = startYText.length > 0 ? Number(startYText[0]) : -1;
   const goalX = goalXText.length > 0 ? Number(goalXText[0]) : -1;
@@ -24,6 +25,7 @@ export default function gridVisualizer () {
   const { grid: resultGrid, route, startLoc, goalLoc } 
     = gridBFS(height, width, grid, {x: startX, y: startY}, {x: goalX, y: goalY})
 
+  // 丈夫で宣言したtype Displaycellの配列を初期化この配列の中身で色、値を管理
   const displayCells: DisplayCell[][] = Array.from(
     { length: height + 2 },
     () =>
@@ -35,6 +37,22 @@ export default function gridVisualizer () {
         })
         )
   );
+  // displayCellsの中身を更新
+  // color:
+  // # -> black
+  // othetr -> white
+  // (最短経路が必要な時)
+  //    route -> green
+
+  // value
+  // 最短経路がいらない時
+  //    . -> ""
+  //    other -> other(そのまま)
+  // 最短経路が必要な時
+  //   . -> distance (startからの距離, 到達不能で-1)
+  //   other -> other: distance
+  //   start or goal -> S: distance or G: distance
+
   for(let y = 1; y <= height; y++){
     for(let x = 1; x <= width; x ++){
         if(grid[y][x] == "#"){
@@ -55,12 +73,14 @@ export default function gridVisualizer () {
         if(goalLoc.x == x && goalLoc.y == y){
             displayCells[y][x].char = "G: "
         }
+        // 最短経路を求める場合には文字列にSからの距離を追加
         if(isShortestPath){
             displayCells[y][x].char += String(resultGrid[y][x])
         }
 
     }
   }
+  //最短経路の色変更
   if(isShortestPath){
     for(let i = 0; i < route.length; i ++){
         const x = route[i].x
@@ -68,6 +88,7 @@ export default function gridVisualizer () {
         displayCells[y][x].color = "#00ff00"
     }
   }
+  //最終的に描画するcell
   const paintCells = []
   for (let y = 1; y <= height; y++) {
     const row = [];
@@ -99,7 +120,7 @@ export default function gridVisualizer () {
     );
   }
  
-
+  
   return (
     <div>
       <div>
@@ -116,7 +137,7 @@ export default function gridVisualizer () {
                 width: '100%', 
                 height: '100px', 
                 padding: '12px', 
-                fontFamily: 'Menlo, Monaco, Consolas, monospace, monospace',
+                fontFamily: 'Menlo, Monaco, Consolas, monospace, monospace',//そのままだと文字の幅が合わず追加
                 fontSize: '14px'
               }}
             />
