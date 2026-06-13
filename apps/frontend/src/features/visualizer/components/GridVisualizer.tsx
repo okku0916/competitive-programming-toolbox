@@ -18,14 +18,13 @@ export default function gridVisualizer () {
 
   const { height, width, grid } = gridParseInput(inputText);
   // text内の最初の文字を整数に変換する
-  const startX = startXText.length > 0 ? Number(startXText[0]) : -1;
-  const startY = startYText.length > 0 ? Number(startYText[0]) : -1;
-  const goalX = goalXText.length > 0 ? Number(goalXText[0]) : -1;
-  const goalY = goalYText.length > 0 ? Number(goalYText[0]) : -1;
+  const startX = startXText.length > 0 ? Number(startXText) : -1;
+  const startY = startYText.length > 0 ? Number(startYText) : -1;
+  const goalX = goalXText.length > 0 ? Number(goalXText) : -1;
+  const goalY = goalYText.length > 0 ? Number(goalYText) : -1;
   const { grid: resultGrid, route, startLoc, goalLoc } 
     = gridBFS(height, width, grid, {x: startX, y: startY}, {x: goalX, y: goalY})
-
-  // 丈夫で宣言したtype Displaycellの配列を初期化この配列の中身で色、値を管理
+  // 上部で宣言したtype Displaycellの配列を初期化この配列の中身で色、値を管理
   const displayCells: DisplayCell[][] = Array.from(
     { length: height + 2 },
     () =>

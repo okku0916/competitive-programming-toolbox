@@ -70,6 +70,9 @@ export function gridBFS(height: number, width: number, grid: string[][],
             continue
         }
         const nowX = cell.pos.x, nowY = cell.pos.y, nowDistance = cell.distance
+        if(resultGrid[nowY][nowX] > 0){
+            continue;
+        }
         resultGrid[nowY][nowX] = nowDistance
         
         for(let i = 0; i < 4; i ++){

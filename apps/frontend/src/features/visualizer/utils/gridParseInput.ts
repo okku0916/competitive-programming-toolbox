@@ -35,8 +35,8 @@ export function gridParseInput(inputText: string): ParseInput{
     const inputLines = inputText.trim().split("\n");
     //１行目を分けて数値にして返す
     const firstLineInt = inputLines[0].split(" ").map(Number);
-    const height = firstLineInt[0]
-    const width = firstLineInt[1]
+    const height = Number(firstLineInt[0])
+    const width = Number(firstLineInt[1])
 
     //数値であることを確認
     if(Number.isNaN(height) || Number.isNaN(width)){
