@@ -70,7 +70,7 @@ class Tokenizer {
         while (!this.isEnd() && /\s/.test(this.now())) {
             this.advance();
         }
-    )
+    }
 
     // Read an identifier such as int, N, or list
     readIdentifier(): string {
