@@ -4,15 +4,9 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 // tsファイルはコンパイル後にjsになるためjs拡張子でimport
-import { runRoute } from './routes/run.js'
+import { executionRoute } from './features/execution/route.js'
 
 const app = new Hono()
-
-type RunRequest = {
-  language: string;
-  sourceCode: string;
-  input: string;
-}
 
 
 // すべてのリクエストに対して、CORS用のヘッダを付ける共通処理を追加
@@ -39,8 +33,8 @@ app.get('/test', (c) => {
 })
 
 
-//postリクエストを受け取ってそれに対して./routes/run.ts内のrunRouteオブジェクトを利用
-app.route('/api/run', runRoute)
+//postリクエストを受け取ってそれに対してexecutionRouteオブジェクトを利用
+app.route('/api/run', executionRoute)
 
 
 

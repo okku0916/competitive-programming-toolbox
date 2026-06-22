@@ -1,7 +1,8 @@
 import { useState } from "react";
 
 export default function TestPage() {
-  const [result, setResult] = useState("");
+  const [outPutText, setOutputText] = useState("");
+  const [inputText, setInputText] = useState("")
 
   const sendCode = async () => {
 
@@ -13,7 +14,7 @@ export default function TestPage() {
     },
     body: JSON.stringify({
       language: "c++",
-      sourceCode: 'int main(){}',
+      sourceCode: inputText,
       input: ""
 
     }),
@@ -25,15 +26,39 @@ export default function TestPage() {
   const data = await response.json()
 
   console.log(data)
+  setOutputText(data.stdout)
 }
 
   return (
-    <>
-      <button onClick={sendCode}>
-        実行
-      </button>
 
-      <p>{result}</p>
-    </>
+      <div>
+          入力エリア
+          <br />
+            <textarea
+          //   ref={inputRef}
+            style={{
+              width: "600px",
+              height: "280px"
+            }}
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+          />
+          <br />
+
+        
+        <button onClick={sendCode}>
+          実行
+        </button>
+
+      <textarea
+          //   ref={inputRef}
+            style={{
+              width: "600px",
+              height: "280px"
+            }}
+            value={outPutText}
+            onChange={(e) => setOutputText(e.target.value)}
+          />
+    </div>
   );
 }
