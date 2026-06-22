@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^2.0.5",
-    "hono": "^4.12.25"
+    "hono": "^4.12.25",
+    "@cpt/shared-types": "*"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
