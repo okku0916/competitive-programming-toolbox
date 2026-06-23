@@ -1,8 +1,11 @@
 import { useState } from "react";
+import type { RunResponse } from "@cpt/shared-types"
 
 export default function TestPage() {
   const [outPutText, setOutputText] = useState("");
+  const [codeText, setCodeText] = useState("")
   const [inputText, setInputText] = useState("")
+  const [errorText, setErrorText] = useState("")
 
   const sendCode = async () => {
 
@@ -14,44 +17,64 @@ export default function TestPage() {
     },
     body: JSON.stringify({
       language: "c++",
-      sourceCode: inputText,
-      input: ""
+      sourceCode: codeText,
+      input: inputText
 
     }),
   })
-
-  
-  
-
-  const data = await response.json()
+  const data: RunResponse = await response.json()
 
   console.log(data)
   setOutputText(data.stdout)
+  setErrorText(data.stderr)
 }
 
   return (
 
       <div>
-          入力エリア
-          <br />
-            <textarea
-          //   ref={inputRef}
-            style={{
-              width: "600px",
-              height: "280px"
-            }}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-          />
+
+          <div style={{ display: "flex", gap: "20px" }}>
+            <div>
+              コード入力エリア
+              <br />
+              <textarea
+                style={{
+                  width: "600px",
+                  height: "280px"
+                }}
+                value={codeText}
+                onChange={(e) => setCodeText(e.target.value)}
+                />
+            </div>
+            <div>
+              標準入力
+              <br />
+              <textarea
+                style={{
+                  width: "600px",
+                  height: "280px"
+                }}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+              />
+            </div>
+            
+            
+
+          </div>
+          
+              
           <br />
 
         
         <button onClick={sendCode}>
           実行
         </button>
-
-      <textarea
-          //   ref={inputRef}
+      <div style={{ display: "flex", gap: "20px" }}>
+        <div>
+          標準出力
+          <br />
+          <textarea
             style={{
               width: "600px",
               height: "280px"
@@ -59,6 +82,22 @@ export default function TestPage() {
             value={outPutText}
             onChange={(e) => setOutputText(e.target.value)}
           />
+        </div>
+        <div>
+          標準エラー
+          <br />
+          <textarea
+            style={{
+              width: "600px",
+              height: "280px"
+            }}
+            value={errorText}
+            onChange={(e) => setErrorText(e.target.value)}
+          />
+        </div>
+        
+      </div>
+      
     </div>
   );
 }
