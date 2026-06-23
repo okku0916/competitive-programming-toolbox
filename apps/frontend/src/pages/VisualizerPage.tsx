@@ -17,6 +17,7 @@ return (
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <Link to="/visualizer/1d-array" style={{ textDecoration: 'none', color: '#333' }}>1次元配列</Link>
             <Link to="/visualizer/graph" style={{ textDecoration: 'none', color: '#333' }}>グラフ・木構造</Link>
+            <Link to="/visualizer/grid" style={{ textDecoration: 'none', color: '#333' }}>grid</Link>
           </nav>
         </aside>
 
