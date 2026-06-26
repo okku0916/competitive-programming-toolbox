@@ -8,6 +8,7 @@ import TestPage from './pages/TestPage';
 
 import ArrayVisualizer from './features/visualizer/components/ArrayVisualizer';
 import GraphVisualizer from './features/visualizer/components/GraphVisualizer';
+import GridVisualizer from './features/visualizer/components/GridVisualizer';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route index element={<Navigate to="1d-array" replace />} />
             <Route path="1d-array" element={<ArrayVisualizer />} />
             <Route path="graph" element={<GraphVisualizer />} />
+            <Route path="grid" element={<GridVisualizer />} />
           </Route>
         </Routes>
       </BrowserRouter>
