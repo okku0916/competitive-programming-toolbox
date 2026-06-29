@@ -8,6 +8,7 @@ export default function TestPage() {
   const [errorText, setErrorText] = useState("")
 
   const sendCode = async () => {
+  setOutputText("");
 
   //responseは第二引数で送ったデータの返却値
   const response = await fetch('http://localhost:3000/api/run', {
@@ -25,8 +26,13 @@ export default function TestPage() {
   const data: RunResponse = await response.json()
 
   console.log(data)
-  setOutputText(data.stdout)
-  setErrorText(data.stderr)
+  if(data.exitCode == 0){
+    setOutputText(data.stdout)
+  }else{
+    setOutputText(data.stderr)
+  }
+  
+  // setErrorText(data.stderr)
 }
 
   return (
@@ -64,7 +70,7 @@ export default function TestPage() {
           </div>
           
               
-          <br />
+
 
         
         <button onClick={sendCode}>
