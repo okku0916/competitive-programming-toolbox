@@ -95,4 +95,35 @@ export class Parser {
       this.advance();
       return token.value;
   }
+
+  parseScalarConstraint(): ScalarConstraint {
+    const typeName = this.expectIdentifier();
+
+    if (!isTypeName(typeName)) {
+        throw new Error(`Expected type name, but got ${typeName}`);
+    }
+
+    const name = this.expectIdentifier();
+
+    this.expectSymbol("(");
+    const min = this.expectNumber();
+    this.expectSymbol(",");
+    const max = this.expectNumber();
+    this.expectSymbol(")");
+
+    const options: string[] = [];
+
+    while (this.now().kind === "option") {
+        options.push(this.expectOption());
+    }
+
+    return {
+        kind: "scalar",
+        typeName,
+        name,
+        min,
+        max,
+        options,
+    };
+}
 }
