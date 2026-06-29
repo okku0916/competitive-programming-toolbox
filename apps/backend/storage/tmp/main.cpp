@@ -1,6 +1,7 @@
-#include<bits/stdc++.h>
+#include <iostream>
 using namespace std;
+
+
 int main(){
-vector<int> a = {2, 3, 4};
-cout << a[0] << endl;
+cout << "hello" << endl;
 }
