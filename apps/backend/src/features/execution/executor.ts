@@ -6,7 +6,7 @@
 import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 
-import { writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 
 
 
@@ -16,12 +16,14 @@ import { writeFile } from 'node:fs/promises'
 const execAsync = promisify(exec)
 
 export async function executeCpp(sourceCode: string, stdin: string) {
-//   sourceCodeをtmpの中にかく(ファイルを作成)
-  await writeFile('./storage/tmp/main.cpp', sourceCode)
-
-// docker内で/Storage/tmpのフォルダを参照できるようにworkspaceを定義
-// process.cwdで現在の階層の位置を返す
+  
+  // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
+  // process.cwdで現在の階層の位置を返す
   const workspace = `${process.cwd()}/storage/tmp`
+  // ディレクトリが存在しない場合は作成
+  await mkdir(workspace, { recursive: true })
+  // sourceCodeをtmpの中にかく(ファイルを作成)
+  await writeFile('./storage/tmp/main.cpp', sourceCode)
 
   // コンパイル
   try{
