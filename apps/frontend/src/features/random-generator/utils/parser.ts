@@ -9,6 +9,8 @@ export type ScalarConstraint = {
   options: string[];
 };
 
+export type Constraint = ScalarConstraint;
+
 // List of supported type names
 const TYPE_NAMES = ["int", "float", "double", "str"];
 
@@ -47,6 +49,28 @@ export class Parser {
   isEnd(): boolean {
       return this.now().kind === "eof";
   }
+
+  parseConstraints(): Constraint[] {
+    const constraints: Constraint[] = [];
+
+    while (!this.isEnd()) {
+        const constraint = this.parseScalarConstraint();
+        constraints.push(constraint);
+
+        const token = this.now();
+
+        if (token.kind === "symbol" && token.value === ";") {
+            this.expectSymbol(";");
+            continue;
+        }
+
+        if (!this.isEnd()) {
+            throw new Error(`Expected ; or EOF`);
+        }
+    }
+
+    return constraints;
+}
 
   // Read current token as identifier
   expectIdentifier(): string {

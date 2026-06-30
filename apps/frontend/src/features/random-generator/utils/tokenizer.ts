@@ -53,7 +53,7 @@ export class Tokenizer {
 
   // Check if character is a supported symbol
   isSymbol(c: string): boolean {
-      return "()[],+-*/^".includes(c);
+      return "()[],;+-*/^".includes(c);
   }
   
   // Skip spaces, tabs, and newlines

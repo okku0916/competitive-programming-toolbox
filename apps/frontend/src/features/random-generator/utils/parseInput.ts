@@ -7,10 +7,12 @@ export function parseInput(text: string) {
 
     const parser = new Parser(tokens);
 
-    const test = parser.parseScalarConstraint();
-    return test
+    return parser.parseConstraints();
 }
 
-const text = `int N(1, 100) @odd @even`;
+const text = `
+int N(1, 100) @odd;
+int M(1, 10);
+`;
 
 console.log(parseInput(text));
