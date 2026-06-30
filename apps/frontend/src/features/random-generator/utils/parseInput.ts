@@ -12,7 +12,7 @@ export function parseInput(text: string) {
 
 const text = `
 int N(1, 100) @odd;
-int M(1, 10);
+list(int) A[N](1, 1000);
 `;
 
 console.log(parseInput(text));
