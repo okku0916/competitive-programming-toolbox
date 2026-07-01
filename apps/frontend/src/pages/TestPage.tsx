@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RunResponse } from "@cpt/shared-types"
+import Header from "../components/Header";
 
 export default function TestPage() {
   const [outPutText, setOutputText] = useState("");
@@ -38,7 +39,7 @@ export default function TestPage() {
   return (
 
       <div>
-
+        <Header />
           <div style={{ display: "flex", gap: "20px" }}>
             <div>
               コード入力エリア
