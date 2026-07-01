@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import GraphCanvas from './GraphCanvas';
+import { parseGraphInput } from '../utils/parseGraphInput';
 
 export default function GraphVisualizer () {
   const [inputText, setInputText] = useState("");
+  // 入力テキストが変更された場合のみ、パースする
+  const graphElements = useMemo(() => parseGraphInput(inputText), [inputText]);
 return (
   <div>
     <h1>
@@ -20,7 +24,9 @@ return (
             fontSize: '14px'
           }}
         />
-  </div>
 
+      <h3>描画エリア</h3>
+      <GraphCanvas elements={graphElements}/>
+  </div>
   );
 }
