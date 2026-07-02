@@ -20,12 +20,18 @@ export default function RandomGeneratorPage () {
   };
 
     //生成ボタン
-  const handleGenerate = () => {
-    let parsedNum = parseInput(inputText);
-    console.log("In RandomGeneratorView:parsed num " + parsedNum);
-    let generateStr = randomGenerate(parsedNum);
+  const handleGenerate = async () => {
+    let parsedInput = parseInput(inputText);
+    const response = await fetch('http://localhost:3000/api/random-generator', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(parsedInput)
+    })
+    const data: string = await response.json()
     
-    setOutputText(generateStr);
+    setOutputText(data);
     setErrorText("エラーのテキストの表示");
   };
 
