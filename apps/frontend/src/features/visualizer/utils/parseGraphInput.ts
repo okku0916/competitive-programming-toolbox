@@ -1,7 +1,7 @@
 // 型定義
 export type GraphElement = {
   data: {
-    id?: string;
+    id: string;
     source?: string; // 辺の始点
     target?: string; // 辺の終点
     label?: string;  // 画面に表示するテキスト
@@ -9,15 +9,25 @@ export type GraphElement = {
 };
 
 export function parseGraphInput(inputText: string): GraphElement[] {
-    // 現在はパースせず、モックを返す
-    const mockElements: GraphElement[] = [
-        // 頂点（Nodes）
-        { data: { id: '1', label: 'Node 1' } },
-        { data: { id: '2', label: 'Node 2' } },
-        { data: { id: '3', label: 'Node 3' } },
-        // 辺（Edges）
-        { data: { source: '1', target: '2', label: 'Edge 1-2' } },
-        { data: { source: '2', target: '3', label: 'Edge 2-3' } }
-    ];
-  return mockElements;
+  if (!inputText.trim()) return [];
+
+  const elements: GraphElement[] = []
+  const inputLines = inputText.trim().split(/\r?\n/); // 改行で分ける
+  const firstLineInt = inputLines[0].split(/\s+/).map(Number);
+  const n = firstLineInt[0];
+  const m = firstLineInt[1];
+  for (let i = 1; i <= n; i++) {
+    elements.push({data: { id: String(i), label: String(i) } })
+  }
+  for (let i = 1; i <= Math.min(m, inputLines.length-1); i++) {
+    const line = inputLines[i].trim().split(/\s+/);
+    if (line.length < 2) continue;
+    if (!/^[0-9]+$/.test(line[0]) || !/^[0-9]+$/.test(line[1])) continue; // 数値か確認
+    const u = Number(line[0]);
+    const v = Number(line[1]);
+    if (u < 0 || n < u || v < 0 || n < v) continue; // 範囲内チェック
+    elements.push({data: { id: `e${u}-${v}`, source: '${u}', target: '${v}' }})
+  }
+  console.log(elements);
+  return elements;
 }

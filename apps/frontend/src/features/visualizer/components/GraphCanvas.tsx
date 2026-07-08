@@ -12,6 +12,7 @@ export default function GraphCanvas({ elements }: GraphCanvasProps) {
   return (
     <div style={{ border: '1px solid' }}>
       <CytoscapeComponent
+        key={JSON.stringify(elements)}
         elements={elements}
         layout={layout}
         style={{ width: '100%', height: '400px' }}
