@@ -14,6 +14,7 @@ export function parseGraphInput(inputText: string): GraphElement[] {
   const elements: GraphElement[] = []
   const inputLines = inputText.trim().split(/\r?\n/); // 改行で分ける
   const firstLineInt = inputLines[0].split(/\s+/).map(Number);
+  if (firstLineInt.length < 2) return [];
   const n = firstLineInt[0];
   const m = firstLineInt[1];
   for (let i = 1; i <= n; i++) {
@@ -26,7 +27,7 @@ export function parseGraphInput(inputText: string): GraphElement[] {
     const u = Number(line[0]);
     const v = Number(line[1]);
     if (u < 0 || n < u || v < 0 || n < v) continue; // 範囲内チェック
-    elements.push({data: { id: `e${u}-${v}`, source: '${u}', target: '${v}' }})
+    elements.push({data: { id: `e${u}-${v}`, source: `${u}`, target: `${v}` }})
   }
   console.log(elements);
   return elements;
