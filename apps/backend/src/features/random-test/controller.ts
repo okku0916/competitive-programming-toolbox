@@ -2,7 +2,7 @@
 // routesから呼び出される
 
 import type { Context } from 'hono'
-import { randomTester } from './randomTester.js';
+import { randomTesterCpp } from './randomTesterCpp.js';
 type ScalarConstraint = {
   kind: "scalar";
   typeName: string;
@@ -42,7 +42,7 @@ export async function randomTestController(c: Context) {
   // .jsonでjson型の者を受け取れる
   const body = await c.req.json<randomTestRequest>()
 
-  const result = await randomTester(body)
+  const result = await randomTesterCpp(body)
 
   return c.json(result)
 }
