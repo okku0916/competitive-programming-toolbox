@@ -4,7 +4,6 @@
 // 現在はapi/runのみなのでほとんど必要ない...
 
 import { Hono } from 'hono'
-import type { RunRequest, RunResponse } from '@cpt/shared-types'
 import { randomTestController } from './controller.js';
 
 export const executionRoute = new Hono();
