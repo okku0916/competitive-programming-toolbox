@@ -5,7 +5,7 @@
 import type { Context } from 'hono'
 // import { executeCode } from './service.js'
 import type { Constraint } from '@cpt/shared-types'
-import { generateScalar, generateList } from './generator.js';
+import { generateInput } from './service.js';
 
 // 型ContextはAPI通信の中身が全て入ったもの
 export async function generaterController(c: Context) {
@@ -15,16 +15,7 @@ export async function generaterController(c: Context) {
   // .jsonでjson型の者を受け取れる
   let result = "";
   const body = await c.req.json<Constraint[]>()
+  return c.json(generateInput(body));
 
-  for(let i = 0; i < body.length; i ++){
-    const constraint = body[i];
-    if (constraint.kind === "list") {
-      result += generateList(constraint) + "\n";
-    }
-    if(constraint.kind == "scalar"){
-      result += generateScalar(constraint) + "\n";
-    }
-  }
-  return c.json(result)
 }
 
