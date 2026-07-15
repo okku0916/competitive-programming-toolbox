@@ -2,44 +2,27 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
+import type { Constraint } from '@cpt/shared-types'
+import { generaterController } from '../random-generator/controller.js'
+
 
 // 標準出力の型のようなもの
 // Exec Asynchronous 非同期にするためのもの
 // そのままではawaitを使えない
 const execAsync = promisify(exec)
 
-type ScalarConstraint = {
-  kind: "scalar";
-  typeName: string;
-  name: string;
-  min: number;
-  max: number;
-  options: string[];
-};
-
-type Length =
-  | { kind: "number"; value: number }
-  | { kind: "variable"; name: string };
-
-type ListConstraint = {
-    kind: "list";
-    elementType: string;
-    name: string;
-    length: Length;
-    min: number;
-    max: number;
-    options: string[];
-  };
-  
-type Constraint = ScalarConstraint | ListConstraint;
 type RandomTestRequest = {
     sourceCode: string
+    sourceCodeLanguage: string
     answerCode: string
+    answerCodeLanguage: string
     input: Constraint
     
 }
 
-function generator(c:Constraint): string{return "3"}//random-geneartorで作ってもらう
+
+
+
 
 export async function randomTesterCpp(req: RandomTestRequest){
     const answerCode = req.answerCode;
@@ -118,8 +101,9 @@ export async function randomTesterCpp(req: RandomTestRequest){
     // spawn(command, [,args][,option])で利用
     // console.log(cnt);
 
-    // const randomStdin = generator(req.input);
-    const randomStdin = cnt;
+    const randomStdin = generaterController(req.input);
+    console.log(randomStdin);
+    // const randomStdin = cnt;
     randomInputs.push(randomStdin);
 
     container.stdin.write("echo __BEGIN__ANSWER__\n");
@@ -202,7 +186,10 @@ export async function randomTesterCpp(req: RandomTestRequest){
 
 const input: RandomTestRequest = {
     sourceCode: '#include <iostream>\nusing namespace std;\nint main(){int N; cin >> N; cout << "hello1: " << N << endl;}',
+    sourceCodeLanguage: "c++",
+
     answerCode: '#include <iostream>\nusing namespace std;\nint main(){int N; cin >> N; cout << "hello: " << N << endl;}',
+    answerCodeLanguage: "c++",
     input: {
         kind: "scalar",
         typeName: "int",
