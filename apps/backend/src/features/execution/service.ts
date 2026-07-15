@@ -1,5 +1,5 @@
 import type { RunRequest, RunResponse } from "@cpt/shared-types"
-import { executeCpp } from "./executor.js"
+import { compileCpp, executeCpp } from "./executor.js"
 
 
 
@@ -8,5 +8,21 @@ export async function executeCode(request: RunRequest ): Promise<RunResponse>{
     throw new Error('sourceCode is required')
   }
 
-  return executeCpp(request.sourceCode, request.input)
+  
+  const compile = await compileCpp(request.sourceCode, "main");
+  if(compile == undefined){
+    console.log("OK?")
+  }else{
+    return compile;
+  }
+
+  return executeCpp("main", request.input)
 }
+/*
+#include <iostream>
+using namespace std;
+int main(){
+  cout << "hello" << endl;
+}
+
+*/

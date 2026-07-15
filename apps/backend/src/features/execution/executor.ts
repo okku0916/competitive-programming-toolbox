@@ -15,15 +15,14 @@ import { mkdir, writeFile } from 'node:fs/promises'
 // そのままではawaitを使えない
 const execAsync = promisify(exec)
 
-export async function executeCpp(sourceCode: string, stdin: string) {
-  
+export async function compileCpp(sourceCode: string, fileName: string) {
   // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
   // process.cwdで現在の階層の位置を返す
   const workspace = `${process.cwd()}/storage/tmp`
   // ディレクトリが存在しない場合は作成
   await mkdir(workspace, { recursive: true })
   // sourceCodeをtmpの中にかく(ファイルを作成)
-  await writeFile('./storage/tmp/main.cpp', sourceCode)
+  await writeFile(`${workspace}/${fileName}.cpp`, sourceCode)
 
   // コンパイル
   try{
@@ -32,7 +31,7 @@ export async function executeCpp(sourceCode: string, stdin: string) {
     // --mountでdockerの中とフォルダを紐付け,  docker run --mount type=bind,src=<host-path>,dst=<container-path>
     // gcc:14はDockerイメージ 
     // g++ ....で実行コマンド
-    `docker run --rm --mount type=bind,src=${workspace},dst=/workspace gcc:14 g++ /workspace/main.cpp -o /workspace/main`
+    `docker run --rm --mount type=bind,src=${workspace},dst=/workspace gcc:14 g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`
   )
 
   }catch(err: any){//コンパイルエラーを検知
@@ -52,8 +51,6 @@ export async function executeCpp(sourceCode: string, stdin: string) {
       stdout: string;
       stderr: string;
     };
-
-
     return {
       stdout: e.stdout,
       stderr: e.stderr,
@@ -61,9 +58,11 @@ export async function executeCpp(sourceCode: string, stdin: string) {
     };
   }
 
+}
 
-  // console.log("compail")
+export async function executeCpp(fileName: string, stdin: string) {
 
+  const workspace = `${process.cwd()}/storage/tmp`
   // 実行
   // spawn(command, [,args][,option])で利用
   const child = spawn("docker", [
@@ -73,7 +72,7 @@ export async function executeCpp(sourceCode: string, stdin: string) {
     "--mount",
     `type=bind,src=${workspace},dst=/workspace`,
     "gcc:14",
-    "/workspace/main"
+    `/workspace/${fileName}`
   ]);
   let stdout = "";
   let stderr = "";
