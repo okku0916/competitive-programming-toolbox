@@ -5,9 +5,13 @@
 // メインのNode.jsプロセスから独立してコマンドやプログラムを実行するための機能を提供。
 import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-
 import { mkdir, writeFile } from 'node:fs/promises'
-
+//dirのpathを取得
+import path from "node:path"
+import { fileURLToPath } from "node:url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const workspace = path.join(__dirname, "../../../storage/tmp");
 
 
 // 標準出力の方のようなもの
@@ -18,7 +22,9 @@ const execAsync = promisify(exec)
 export async function compileCpp(sourceCode: string, fileName: string) {
   // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
   // process.cwdで現在の階層の位置を返す
-  const workspace = `${process.cwd()}/storage/tmp`
+  // __dirnameはこのファイルのdirを示す(executionフォルダ)
+  // const workspace = path.join(__dirname ,"../../../storage/tmp")
+  console.log(workspace)
   // ディレクトリが存在しない場合は作成
   await mkdir(workspace, { recursive: true })
   // sourceCodeをtmpの中にかく(ファイルを作成)
@@ -62,7 +68,7 @@ export async function compileCpp(sourceCode: string, fileName: string) {
 
 export async function executeCpp(fileName: string, stdin: string) {
 
-  const workspace = `${process.cwd()}/storage/tmp`
+  // const workspace = path.join(__dirname ,"../../../storage/tmp")
   // 実行
   // spawn(command, [,args][,option])で利用
   const child = spawn("docker", [
