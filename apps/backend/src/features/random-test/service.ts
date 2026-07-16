@@ -65,7 +65,7 @@ export async function judgeCode(req: CodeTestRequest): Promise<CodeTestResponse>
         if(srcResult.stdout !== ansResult.stdout){
             return {
                 status: "wrong-answer",
-                input: "source",
+                input: randomInputs,
                 expected: ansResult.stdout,
                 actual: srcResult.stdout
             }
