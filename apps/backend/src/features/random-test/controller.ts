@@ -2,7 +2,7 @@
 // routesから呼び出される
 
 import type { Context } from 'hono'
-import { judgeCode } from './service.js';
+import { manegementRandomTest } from './service.js';
 import type { CodeTestRequest } from '@cpt/shared-types';
 
 
@@ -14,7 +14,7 @@ export async function randomTestController(c: Context) {
   // .jsonでjson型の者を受け取れる
   const body = await c.req.json<CodeTestRequest>()
 
-  const result = await judgeCode(body)
+  const result = await manegementRandomTest(body)
 
   return c.json(result)
 }

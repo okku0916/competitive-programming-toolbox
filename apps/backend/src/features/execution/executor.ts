@@ -24,7 +24,7 @@ export async function startContainer():Promise<string> {
   //-i input OK, 
   const {stdout} = await execAsync(`docker run -itd --mount type=bind,src=${workspace},dst=/workspace gcc:14`)
 
-  return stdout;
+  return stdout.replace("\n", "");
 }
 
 export async function stopContainer(containeID: string) {

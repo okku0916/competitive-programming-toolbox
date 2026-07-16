@@ -1,5 +1,5 @@
 import type { CodeTestRequest } from "@cpt/shared-types";
-import { judgeCode } from "./service.js";
+import { judgeCode, manegementRandomTest } from "./service.js";
 
 const request: CodeTestRequest = {
   sourceCode: `
@@ -41,6 +41,6 @@ int main() {
   ],
 };
 
-const result = await judgeCode(request);
+const result = await manegementRandomTest(request);
 
 console.log(result);

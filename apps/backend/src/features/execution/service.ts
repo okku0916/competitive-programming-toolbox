@@ -8,7 +8,7 @@ export async function executeCode(request: RunRequest ): Promise<RunResponse>{
     throw new Error('sourceCode is required')
   }
   await makeFileCpp("main", request.sourceCode)
-  const containerID = (await startContainer()).replace("\n", "");
+  const containerID = (await startContainer());
   
   const compile = await compileCpp("main", containerID);
   if(compile == undefined){
