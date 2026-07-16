@@ -11,33 +11,53 @@ import path from "node:path"
 import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
 const workspace = path.join(__dirname, "../../../storage/tmp");
-
 
 // 標準出力の方のようなもの
 // Exec Asynchronous 非同期にするためのもの
 // そのままではawaitを使えない
 const execAsync = promisify(exec)
 
-export async function compileCpp(sourceCode: string, fileName: string) {
-  // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
-  // process.cwdで現在の階層の位置を返す
+
+export async function startContainer():Promise<string> {
+  //-i input OK, 
+  const {stdout} = await execAsync(`docker run -itd --mount type=bind,src=${workspace},dst=/workspace gcc:14`)
+
+  return stdout;
+}
+
+export async function stopContainer(containeID: string) {
+  await execAsync(`docker stop ${containeID}`);
+  await execAsync(`docker rm ${containeID}`)
+
+}
+
+export async function makeFileCpp(fileName: string, sourceCode: string) {
+  
   // __dirnameはこのファイルのdirを示す(executionフォルダ)
   // const workspace = path.join(__dirname ,"../../../storage/tmp")
-  console.log(workspace)
+  // console.log(workspace)
   // ディレクトリが存在しない場合は作成
   await mkdir(workspace, { recursive: true })
   // sourceCodeをtmpの中にかく(ファイルを作成)
   await writeFile(`${workspace}/${fileName}.cpp`, sourceCode)
+}
+
+
+
+export async function compileCpp(fileName: string, containerID: string) {
 
   // コンパイル
   try{
+    const command = `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`;
+    console.log("command = ", command);
     await execAsync(
     // --rmは実行後にdockerを閉じる
     // --mountでdockerの中とフォルダを紐付け,  docker run --mount type=bind,src=<host-path>,dst=<container-path>
     // gcc:14はDockerイメージ 
     // g++ ....で実行コマンド
-    `docker run --rm --mount type=bind,src=${workspace},dst=/workspace gcc:14 g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`
+    `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`
   )
 
   }catch(err: any){//コンパイルエラーを検知
@@ -66,18 +86,15 @@ export async function compileCpp(sourceCode: string, fileName: string) {
 
 }
 
-export async function executeCpp(fileName: string, stdin: string) {
+export async function executeCpp(fileName: string, stdin: string, containerID: string) {
 
   // const workspace = path.join(__dirname ,"../../../storage/tmp")
   // 実行
   // spawn(command, [,args][,option])で利用
   const child = spawn("docker", [
-    "run",
-    "--rm",
+    "exec",
     "-i", // stdinを有効化
-    "--mount",
-    `type=bind,src=${workspace},dst=/workspace`,
-    "gcc:14",
+    containerID,
     `/workspace/${fileName}`
   ]);
   let stdout = "";
