@@ -8,12 +8,12 @@ import { generateInput } from "../random-generator/service.js";
 export async function manegementRandomTest(req: CodeTestRequest): Promise<CodeTestResponse> {
     const sourceFile = "source";
     const answerFile = "answer";
-    await makeFileCpp(sourceFile, req.sourceCode);
-    await makeFileCpp(answerFile, req.answerCode);
-    const containerID = await startContainer();
+    await makeFileCpp(sourceFile, req.sourceCode);// storage/tmpにsourceFile.cppを作成
+    await makeFileCpp(answerFile, req.answerCode);// storage/tmpにanswerFile.cppを作成
+    const containerID = await startContainer();// gcc14Containerを起動
     // console.log("containerID = ", containerID)
-    const result = await judgeCode(req, containerID);
-    await stopContainer(containerID);
+    const result = await judgeCode(req, containerID);// WAをrandomcaseで探索
+    await stopContainer(containerID);// 起動したContainerを削除
 
     return result;
 }
@@ -55,6 +55,7 @@ export async function judgeCode(req: CodeTestRequest, containerID: string): Prom
     for(let i = 0; i < loopLimit; i ++){
         console.log(i);
         const randomInputs = generateInput(input);
+        console.log(randomInputs);
         const srcResult = await executeCpp(sourceFile, randomInputs, containerID);
         const ansResult = await executeCpp(answerFile, randomInputs, containerID);
 
@@ -76,6 +77,8 @@ export async function judgeCode(req: CodeTestRequest, containerID: string): Prom
                 exitCode: srcResult.exitCode
             }
         }
+        srcResult.stdout = srcResult.stdout.replaceAll(/\s+\n/g, "\n");
+        ansResult.stdout = ansResult.stdout.replaceAll(/\s+\n/g, "\n");
         if(srcResult.stdout !== ansResult.stdout){
             return {
                 status: "wrong-answer",

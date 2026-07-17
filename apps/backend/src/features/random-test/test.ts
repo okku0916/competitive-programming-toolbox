@@ -12,7 +12,7 @@ int main() {
     if( x > 90){
         cout << x;
     }
-    cout << x * 2 << endl;
+    cout << x * 2 << " " << endl;
 }
 `,
   sourceCodeLanguage: "cpp",
