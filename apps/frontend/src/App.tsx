@@ -10,6 +10,8 @@ import ArrayVisualizer from './features/visualizer/components/ArrayVisualizer';
 import GraphVisualizer from './features/visualizer/components/GraphVisualizer';
 import GridVisualizer from './features/visualizer/components/GridVisualizer';
 
+import RandomTestPage from './pages/RandomTestPage';
+
 function App() {
   return (
     <div>
@@ -20,6 +22,7 @@ function App() {
           <Route path="/random-generator" element={<RandomGeneratorPage />} />
           <Route path="/visualizer" element={<VisualizerPage />} />
           <Route path="/test-page" element={<TestPage />} />
+          <Route path="/random-test" element={<RandomTestPage />}/>
 
           <Route path="/visualizer" element={<VisualizerPage />}>
             {/* /visualizer にアクセスしたら VisualizerPage を表示 */}
