@@ -41,6 +41,8 @@ export async function makeFileCpp(fileName: string, sourceCode: string) {
   // ディレクトリが存在しない場合は作成
   await mkdir(workspace, { recursive: true })
   // sourceCodeをtmpの中にかく(ファイルを作成)
+  console.log(fileName)
+  console.log(sourceCode)
   await writeFile(`${workspace}/${fileName}.cpp`, sourceCode)
 }
 

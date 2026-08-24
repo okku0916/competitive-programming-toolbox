@@ -1,9 +1,8 @@
 import { useState } from "react";
-import type { RunResponse } from "@cpt/shared-types"
 import Header from "../components/Header";
-import type { CodeTestRequest } from "@cpt/shared-types"
 import { RandomTester } from "../features/random-test/api/randomTester";
 import { parseInput } from "../features/random-generator/utils/parseInput";
+import type { CodeTestResponse } from "../../../../packages/shared-types/src/codeTest";
 
 export default function RandomTestPage() {
   const [sourceCodeText, setSourceCodeText] = useState("")//ソースコード
@@ -14,9 +13,21 @@ export default function RandomTestPage() {
   const execute = async() => {//実行ボタンの処理
       let parsedInput = parseInput(inputText);
       console.log("In RandomGeneratorView:parsed num " + parsedInput);
-      const response = await RandomTester(sourceCodeText, "c++", answerCodeText, "c++", parsedInput);
-
-      setResultText(response)
+      const response: CodeTestResponse = await RandomTester(sourceCodeText, "c++", answerCodeText, "c++", parsedInput);
+      console.log(response)
+      let result = ""
+      result += response.status + "\n"
+      if(response.status == "wrong-answer"){
+        result += "誤った出力\n"
+        result += response.actual + "\n"
+        result += "正しい出力\n"
+        result += response.expected + "\n"
+        result += "WA標準入力: \n"
+        result += response.input + "\n"
+      }else if(response.status == "compile-error" || response.status == "runtime-error"){
+        result += response.stderr
+      }
+      setResultText(result)
     };
 
   return (

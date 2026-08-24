@@ -6,6 +6,7 @@ import { cors } from 'hono/cors'
 // tsファイルはコンパイル後にjsになるためjs拡張子でimport
 import { executionRoute } from './features/execution/route.js'
 import { randomGeneratorRoute } from './features/random-generator/route.js'
+import { randomTestRoute } from './features/random-test/route.js'
 
 const app = new Hono()
 
@@ -37,6 +38,7 @@ app.get('/test', (c) => {
 //postリクエストを受け取ってそれに対してexecutionRouteオブジェクトを利用
 app.route('/api/run', executionRoute)
 app.route('/api/random-generator', randomGeneratorRoute)
+app.route('/api/random-test', randomTestRoute)
 
 
 

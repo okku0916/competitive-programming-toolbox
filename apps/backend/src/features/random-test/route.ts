@@ -6,9 +6,9 @@
 import { Hono } from 'hono'
 import { randomTestController } from './controller.js';
 
-export const executionRoute = new Hono();
+export const randomTestRoute = new Hono();
 
 // この関数が呼ばれるのはapi/random-testの時のみ(index.tsからその時に繋がれる)
-executionRoute.post('/', randomTestController)
+randomTestRoute.post('/', randomTestController)
 
 

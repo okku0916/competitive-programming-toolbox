@@ -1,19 +1,12 @@
 import type { Constraint } from "../../random-generator/utils/parser"
-
-type CodeTestRequest = {
-    sourceCode: string
-    sourceCodeLanguage: string
-    answerCode: string
-    answerCodeLanguage: string
-    input: Constraint[]  
-}
+import type { CodeTestRequest, CodeTestResponse } from "../../../../../../packages/shared-types/src/codeTest"
 export async function RandomTester(
     sourceCodeText: string,
     sourceCodeLanguage: string, 
     answerCodeText: string,
     answerCodeLanguage: string,
     parsedInput: Constraint[]
-    ){
+    ): Promise<CodeTestResponse>{
 
     const request: CodeTestRequest = {
         sourceCode: sourceCodeText,
@@ -22,15 +15,16 @@ export async function RandomTester(
         answerCodeLanguage: answerCodeLanguage,
         input: parsedInput }
 
-    const response = await fetch('http://localhost:3000/api/run', {
+    const response = await fetch('http://localhost:3000/api/random-test', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
+    body: JSON.stringify(
         request
-    }),
+    ),
     })
-    return response.json()
+
+    return await response.json()
 
 }

@@ -6,6 +6,8 @@ import { generateInput } from "../random-generator/service.js";
 
 
 export async function manegementRandomTest(req: CodeTestRequest): Promise<CodeTestResponse> {
+
+    console.log(req);
     const sourceFile = "source";
     const answerFile = "answer";
     await makeFileCpp(sourceFile, req.sourceCode);// storage/tmpにsourceFile.cppを作成
@@ -14,6 +16,8 @@ export async function manegementRandomTest(req: CodeTestRequest): Promise<CodeTe
     // console.log("containerID = ", containerID)
     const result = await judgeCode(req, containerID);// WAをrandomcaseで探索
     await stopContainer(containerID);// 起動したContainerを削除
+    console.log("result = ")
+    console.log(result)
 
     return result;
 }
