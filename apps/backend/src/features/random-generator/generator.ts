@@ -1,7 +1,7 @@
 
 
 import type { ListConstraint, ScalarConstraint } from "@cpt/shared-types";
-import { listenerCount } from "process";
+
 
 
 export function generateScalar(constraint: ScalarConstraint){
@@ -40,7 +40,7 @@ export function generateScalar(constraint: ScalarConstraint){
 }
 
 export function generateList(constraint: ListConstraint){
-    constraint.
+
     return "4 3 1";
 
 }
