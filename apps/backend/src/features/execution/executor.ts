@@ -8,6 +8,8 @@ import { promisify } from 'node:util'
 
 import { mkdir, writeFile } from 'node:fs/promises'
 
+import { toHostPath } from '../../lib/docker.js'
+
 
 
 // 標準出力の方のようなもの
@@ -32,11 +34,11 @@ export async function executeCpp(sourceCode: string, stdin: string) {
     // --mountでdockerの中とフォルダを紐付け,  docker run --mount type=bind,src=<host-path>,dst=<container-path>
     // gcc:14はDockerイメージ 
     // g++ ....で実行コマンド
-    `docker run --rm --mount type=bind,src=${workspace},dst=/workspace gcc:14 g++ /workspace/main.cpp -o /workspace/main`
+    `docker run --rm --mount type=bind,src=${toHostPath(workspace)},dst=/workspace gcc:14 g++ /workspace/main.cpp -o /workspace/main`
   )
 
   }catch(err: any){//コンパイルエラーを検知
-    console.log("compile Err");
+    console.log("compile Err in executeCpp");
     // 型アサーション: asは型が元からわかっている時にその型を支えるようにする
     // 型変換を行っているのではなくeの型をtsが認識できるようにしている
     //   実際のエラーの型:
@@ -62,7 +64,7 @@ export async function executeCpp(sourceCode: string, stdin: string) {
   }
 
 
-  // console.log("compail")
+  console.log("exec start in executeCpp")
 
   // 実行
   // spawn(command, [,args][,option])で利用
@@ -71,7 +73,7 @@ export async function executeCpp(sourceCode: string, stdin: string) {
     "--rm",
     "-i", // stdinを有効化
     "--mount",
-    `type=bind,src=${workspace},dst=/workspace`,
+    `type=bind,src=${toHostPath(workspace)},dst=/workspace`,
     "gcc:14",
     "/workspace/main"
   ]);
