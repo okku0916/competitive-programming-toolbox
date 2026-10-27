@@ -1,0 +1,32 @@
+# dockerで起動するサービスを定義する
+services:
+  # サービス名(自由に決められる)
+  dev:
+    build:
+      # context: でファイルの利用範囲の指定
+      # . でこのファイルある階層から使えるように指示
+      context: .
+      # buid等について書かれているdockerfileを指定
+      dockerfile: dockerfile.dev
+    # ターミナルを利用可能にする
+    tty: true
+    # 標準入力を開いたままにする
+    stdin_open: true
+    # portを指定
+    # hostPCのport: docker内のport の形式
+    ports:
+      # 127.0.0.1 を付けて、自分の Mac からのアクセスだけに限定
+      - "127.0.0.1:5173:5173"   # Vite
+      - "127.0.0.1:3000:3000"   # Hono(実際のポートに合わせる)
+    volumes: # 同期設定
+      - .:/workspace
+      - container_deps:/workspace/node_modules # Mac内のnodemodulesを使わないように退避トップレベルの宣言でnode_mozulesに変更
+      - /var/run/docker.sock:/var/run/docker.sock # docker内で別のdockerを操作可能にする//backendに脆弱性があると危険
+    environment:
+      # ホスト側のプロジェクトの絶対パス
+      # docker run の --mount に渡すホスト側のパス
+      - HOST_WORKSPACE=${PWD}   
+    command: npm run dev
+
+volumes:
+  container_deps:
