@@ -36,7 +36,7 @@ export async function judgeCode(req: CodeTestRequest, containerID: string): Prom
     
     const compileSrc = await compileCpp(sourceFile, containerID);
     const compileAns = await compileCpp(answerFile, containerID);
-    if(compileSrc != undefined){
+    if(compileSrc.exitCode != 0){
         return {
             status: "compile-error",
             target: "source",
@@ -45,7 +45,7 @@ export async function judgeCode(req: CodeTestRequest, containerID: string): Prom
             exitCode: compileSrc.exitCode
         };
     }
-    if(compileAns != undefined){
+    if(compileAns.exitCode != 0){
         return {
             status: "compile-error",
             target: "answer",
@@ -81,6 +81,7 @@ export async function judgeCode(req: CodeTestRequest, containerID: string): Prom
                 exitCode: srcResult.exitCode
             }
         }
+        // 空白+改行を改行のみに変更
         srcResult.stdout = srcResult.stdout.replaceAll(/\s+\n/g, "\n");
         ansResult.stdout = ansResult.stdout.replaceAll(/\s+\n/g, "\n");
         if(srcResult.stdout !== ansResult.stdout){

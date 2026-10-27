@@ -11,9 +11,8 @@ export async function executeCode(request: RunRequest ): Promise<RunResponse>{
   const containerID = (await startContainer());
   
   const compile = await compileCpp("main", containerID);
-  if(compile == undefined){
-    console.log("OK?")
-  }else{
+  if(compile.exitCode != 0){ //エラーの場合
+    await stopContainer(containerID);
     return compile;
   }
 

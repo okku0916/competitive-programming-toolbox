@@ -9,6 +9,8 @@ import { mkdir, writeFile } from 'node:fs/promises'
 //dirのpathを取得
 import path from "node:path"
 import { fileURLToPath } from "node:url";
+import { exitCode, stderr, stdout } from 'node:process';
+import type { RunResponse } from '@cpt/shared-types';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
@@ -48,7 +50,7 @@ export async function makeFileCpp(fileName: string, sourceCode: string) {
 
 
 
-export async function compileCpp(fileName: string, containerID: string) {
+export async function compileCpp(fileName: string, containerID: string): Promise<RunResponse> {
 
   // コンパイル
   try{
@@ -60,7 +62,12 @@ export async function compileCpp(fileName: string, containerID: string) {
     // gcc:14はDockerイメージ 
     // g++ ....で実行コマンド
     `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`
-  )
+    )
+    return {//正常終了
+      stdout: "",
+      stderr: "",
+      exitCode: 0,
+    };
 
   }catch(err: any){//コンパイルエラーを検知
     console.log("compile Err");
@@ -88,7 +95,7 @@ export async function compileCpp(fileName: string, containerID: string) {
 
 }
 
-export async function executeCpp(fileName: string, stdin: string, containerID: string) {
+export async function executeCpp(fileName: string, stdin: string, containerID: string):Promise<RunResponse> {
 
   // const workspace = path.join(__dirname ,"../../../storage/tmp")
   // 実行
