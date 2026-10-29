@@ -1,5 +1,5 @@
 import type { RunRequest, RunResponse } from "@cpt/shared-types"
-import { executeCpp } from "./executor.js"
+import { compileCpp, executeCpp, makeFileCpp, startContainer, stopContainer } from "./executor.js"
 
 
 
@@ -7,6 +7,26 @@ export async function executeCode(request: RunRequest ): Promise<RunResponse>{
   if (!request.sourceCode) {//requestにSourceCodeが存在しない場合
     throw new Error('sourceCode is required')
   }
+  await makeFileCpp("main", request.sourceCode)
+  const containerID = (await startContainer());
+  
+  const compile = await compileCpp("main", containerID);
+  if(compile.exitCode != 0){ //エラーの場合
+    await stopContainer(containerID);
+    return compile;
+  }
 
-  return executeCpp(request.sourceCode, request.input)
+  const result = await executeCpp("main", request.input, containerID)
+  await stopContainer(containerID);
+  return result;
+
+
 }
+/*
+#include <iostream>
+using namespace std;
+int main(){
+  cout << "hello" << endl;
+}
+
+*/
