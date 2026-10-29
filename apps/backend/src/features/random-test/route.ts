@@ -1,0 +1,14 @@
+
+// このファイルでURLとControllerを結びつける
+// api/run/...の中身が増えた時にこのファイルで分割する。
+// 現在はapi/runのみなのでほとんど必要ない...
+
+import { Hono } from 'hono'
+import { randomTestController } from './controller.js';
+
+export const randomTestRoute = new Hono();
+
+// この関数が呼ばれるのはapi/random-testの時のみ(index.tsからその時に繋がれる)
+randomTestRoute.post('/', randomTestController)
+
+

@@ -1,5 +1,15 @@
 {
+  "name": "competitive-programming-toolbox",
   "private": true,
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24",
+    "npm": ">=10"
+  },
+  "overrides": {
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
