@@ -1,8 +1,5 @@
-
-
 import type { ListConstraint, ScalarConstraint } from "@cpt/shared-types";
-
-
+import { InputValidationError } from "./errors.js";
 
 export function generateScalar(constraint: ScalarConstraint){
     let kind:string=constraint.kind;
@@ -13,7 +10,7 @@ export function generateScalar(constraint: ScalarConstraint){
     let options:string[]=constraint.options;
     let res:number=0;
     let even_odd:string="";
-    if (max<min) throw new Error("max is less than min");
+    if (max<min) throw new InputValidationError("Max is less than min");
     for (let i=0;i<options.length;i++){
         if (options[i]=="odd" || options[i]=="Odd") even_odd="o";
         else if (options[i]=="even"||options[i]=="Even") even_odd="e";
@@ -33,7 +30,7 @@ export function generateScalar(constraint: ScalarConstraint){
             res=(Math.floor(Math.random()*range)+Math.floor((min+1)/2))*2;
         }
     }else{
-        if (even_odd!="") throw new Error("Even and odd cannot be defined in floating point numbers ")
+        if (even_odd!="") throw new InputValidationError("Even and odd cannot be defined in floating point numbers ")
         res=Math.random()*(max-min)+min;
     }
     return res.toString();

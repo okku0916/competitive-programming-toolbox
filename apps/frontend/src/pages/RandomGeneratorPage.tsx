@@ -20,18 +20,44 @@ export default function RandomGeneratorPage () {
 
     //生成ボタン
   const handleGenerate = async () => {
-    let parsedInput = parseInput(inputText);
-    const response = await fetch('http://localhost:3000/api/random-generator', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(parsedInput)
-    })
-    const data: string = await response.json()
-    
-    setOutputText(data);
-    setErrorText("エラーのテキストの表示");
+    // 入力された文字列をパースする
+    let parsedInput;
+    try {
+      parsedInput = parseInput(inputText);
+    } catch (e) {
+      if (e instanceof Error) {
+        setErrorText(`入力形式に誤りがあります:\n${e.message}`);
+      }
+      return;
+    }
+
+    // バックエンドにapiを投げる
+    let response;
+    try {
+      response = await fetch('http://localhost:3000/api/random-generator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(parsedInput)
+      })
+    } catch {
+      setErrorText("通信に失敗しました。");
+      return;
+    }
+
+    // レスポンスを取得する
+    try {
+      const data = await response.json();
+      if (!response.ok) {
+        setErrorText(`生成に失敗しました:\n${data}`);
+      } else {
+        setOutputText(data);
+        setErrorText("");
+      }
+    } catch {
+      setErrorText("サーバーの応答を読み取れませんでした。");
+    }
   };
 
   //コピーボタン
