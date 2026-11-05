@@ -1,5 +1,6 @@
 import type { RunRequest, RunResponse } from "@cpt/shared-types"
 import { compileCpp, executeCpp, makeFileCpp, startContainer, stopContainer } from "./executor.js"
+import { exitCode } from "process";
 
 
 
@@ -10,17 +11,27 @@ export async function executeCode(request: RunRequest ): Promise<RunResponse>{
   await makeFileCpp("main", request.sourceCode)
   const containerID = (await startContainer());
   
-  const compile = await compileCpp("main", containerID);
-  if(compile.exitCode != 0){ //エラーの場合
-    await stopContainer(containerID);
-    return compile;
+  try{
+    console.log("start compile");
+    const compile = await compileCpp("main", containerID);
+    if(compile.exitCode != 0){ //エラーの場合
+      return compile;
+    }
+    console.log("end compile");
+    console.log("begin exe");
+    const result = await executeCpp("main", request.input, containerID)
+    console.log("end exe");
+    console.log(result);
+    // TLEの場合のexitCode
+    if(result.exitCode == 137){
+      result.stderr = "Time Limit Exceeded.";
+    }
+    return result;
+  } finally{ // 最後に必ずcontainerを止める
+    await stopContainer(containerID).catch((err)=>{
+      console.error("containerの削除でエラー");
+    });
   }
-
-  const result = await executeCpp("main", request.input, containerID)
-  await stopContainer(containerID);
-  return result;
-
-
 }
 /*
 #include <iostream>
