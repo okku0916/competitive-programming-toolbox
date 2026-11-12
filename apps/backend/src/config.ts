@@ -12,4 +12,8 @@ export const config = {
   containerWorkspace: "/workspace", //competitive-programming-toolboxコンテナ内の階層
   hostWorkspace: required("HOST_WORKSPACE"), // ホストPCの階層
   tmpDir: "/workspace/apps/backend/storage/tmp", // tmpフォルダの作成をする階層
+  judge: {
+    maxConcurrency: 2,
+    maxQueue: 2
+  }
 };

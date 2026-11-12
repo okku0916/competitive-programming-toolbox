@@ -5,7 +5,8 @@
 // メインのNode.jsプロセスから独立してコマンドやプログラムを実行するための機能を提供。
 import { ChildProcess, execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, rm } from 'node:fs/promises'
+
 
 import { toHostPath } from '../../lib/docker.js'
 
@@ -16,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { exitCode, stderr, stdout } from 'node:process';
 import type { RunResponse } from '@cpt/shared-types';
 import { rejects } from 'node:assert'
+import { error } from 'node:console'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
@@ -27,10 +29,10 @@ const workspace = path.join(__dirname, "../../../storage/tmp");
 const execFileAsync = promisify(execFile)
 
 
-export async function startContainer():Promise<string> {
+export async function startContainer(folderName: string):Promise<string> {
   //-i 入力を受け取る, 
   const {stdout} = await execFileAsync("docker", 
-    ["run", "-itd", "--mount", `type=bind,src=${toHostPath(workspace)},dst=/workspace`, "gcc:14"])
+    ["run", "-itd", "--mount", `type=bind,src=${toHostPath(workspace)}/${folderName},dst=/workspace`, "gcc:14"])
 
   return stdout.replace("\n", "");
 }
@@ -39,17 +41,33 @@ export async function stopContainer(containerID: string) {
   await execFileAsync("docker",  ["rm", "-f", containerID]) //強制終了
 }
 
-export async function makeFileCpp(fileName: string, sourceCode: string) {
-  
+export async function makeFileCpp(fileName: string, sourceCode: string, codeLanguage: string, folderName: string) {
+  console.log("called makeFileCpp")
   // __dirnameはこのファイルのdirを示す(executionフォルダ)
   // const workspace = path.join(__dirname ,"../../../storage/tmp")
-  // console.log(workspace)
   // ディレクトリが存在しない場合は作成
-  await mkdir(workspace, { recursive: true })
+  await mkdir(`${workspace}/${folderName}`, { recursive: true })
+
+  let extension;
+  switch(codeLanguage){
+    case "c++":
+      extension = "cpp";
+      break;
+    case "python":
+      extension = "py";
+      break;
+    default:
+      console.log("language error");
+      extension = "cpp";
+  }
+
+
   // sourceCodeをtmpの中にかく(ファイルを作成)
-  console.log(fileName)
-  console.log(sourceCode)
-  await writeFile(`${workspace}/${fileName}.cpp`, sourceCode)
+  await writeFile(`${workspace}/${folderName}/${fileName}.${extension}`, sourceCode)
+}
+
+export async function removeFolder(folderName: string){
+  await rm(`${workspace}/${folderName}`, { recursive: true, force: true })
 }
 
 
@@ -57,8 +75,6 @@ export async function makeFileCpp(fileName: string, sourceCode: string) {
 export async function compileCpp(fileName: string, containerID: string): Promise<RunResponse> {
   // コンパイル
   try{
-    const command = `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`;
-    console.log("command = ", command);
     await execFileAsync(
     // g++ ....で実行コマンド
     "docker",
@@ -86,7 +102,7 @@ export async function compileCpp(fileName: string, containerID: string): Promise
 }
 
 
-const TIME_LIMIT = 2
+const TIME_LIMIT = 10
 const MAX_OUTPUT = 10**6
 
 export async function executeCpp(fileName: string, stdin: string, containerID: string):Promise<RunResponse> {
@@ -127,7 +143,12 @@ export async function executeCpp(fileName: string, stdin: string, containerID: s
 
     // closeでchildが終了した際に呼ばれる
     // childのexitCode(正常終了で-1)
+    console.log(stderr);
     child.on("close", (code)=>{
+      if(code == 137){
+        console.log("TLE");
+        stderr = "Time Limit Exceeded";
+      }
       resolve({
         stdout,
         stderr,

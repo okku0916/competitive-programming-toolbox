@@ -1,8 +1,10 @@
 //judge判定を行う
 
 import type { CodeTestRequest, CodeTestResponse } from "@cpt/shared-types"
-import { compileCpp, executeCpp, makeFileCpp, startContainer, stopContainer } from "../execution/executor.js";
+import { compileCpp, executeCpp, makeFileCpp, removeFolder, startContainer, stopContainer } from "../execution/executor.js";
 import { generateInput } from "../random-generator/service.js";
+import { randomUUID } from "crypto";
+import { endRun, startRun } from "../../lib/concurrency.js";
 
 
 export async function manegementRandomTest(req: CodeTestRequest): Promise<CodeTestResponse> {
@@ -10,16 +12,20 @@ export async function manegementRandomTest(req: CodeTestRequest): Promise<CodeTe
     console.log(req);
     const sourceFile = "source";
     const answerFile = "answer";
-    await makeFileCpp(sourceFile, req.sourceCode);// storage/tmpにsourceFile.cppを作成
-    await makeFileCpp(answerFile, req.answerCode);// storage/tmpにanswerFile.cppを作成
-    const containerID = await startContainer();// gcc14Containerを起動
-    // console.log("containerID = ", containerID)
-    const result = await judgeCode(req, containerID);// WAをrandomcaseで探索
-    await stopContainer(containerID);// 起動したContainerを削除
-    console.log("result = ")
-    console.log(result)
+    const folderName = randomUUID();
+    await makeFileCpp(sourceFile, req.sourceCode, req.sourceCodeLanguage, folderName);// storage/tmpにsourceFile.cppを作成
+    await makeFileCpp(answerFile, req.answerCode, req.answerCodeLanguage, folderName);// storage/tmpにanswerFile.cppを作成
+    startRun();
+    const containerID = await startContainer(folderName);// gcc14Containerを起動
+    try{
+        return await judgeCode(req, containerID);// WAをrandomcaseで探索
+    }finally{
+        await stopContainer(containerID);// 起動したContainerを削除
+        endRun();
+        removeFolder(folderName)
+    }
 
-    return result;
+
 }
 
 export async function judgeCode(req: CodeTestRequest, containerID: string): Promise<CodeTestResponse>{
