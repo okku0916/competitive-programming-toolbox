@@ -3,14 +3,22 @@
 
 // child_processとはNode.jsでサブプロセス（子プロセス）を作成し、
 // メインのNode.jsプロセスから独立してコマンドやプログラムを実行するための機能を提供。
-import { exec, spawn } from 'node:child_process'
+import { ChildProcess, execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, rm } from 'node:fs/promises'
+
+
+import { toHostPath } from '../../lib/docker.js'
+import { config } from '../../config.js'
+
+
 //dirのpathを取得
-import path from "node:path"
+import path, { resolve } from "node:path"
 import { fileURLToPath } from "node:url";
 import { exitCode, stderr, stdout } from 'node:process';
 import type { RunResponse } from '@cpt/shared-types';
+import { rejects } from 'node:assert'
+import { error } from 'node:console'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // docker内で/storage/tmpのフォルダを参照できるようにworkspaceを定義
@@ -19,68 +27,74 @@ const workspace = path.join(__dirname, "../../../storage/tmp");
 // 標準出力の方のようなもの
 // Exec Asynchronous 非同期にするためのもの
 // そのままではawaitを使えない
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 
-export async function startContainer():Promise<string> {
-  //-i input OK, 
-  const {stdout} = await execAsync(`docker run -itd --mount type=bind,src=${workspace},dst=/workspace gcc:14`)
+export async function startContainer(folderName: string):Promise<string> {
+  //-i 入力を受け取る, 
+  const {stdout} = await execFileAsync("docker", 
+    ["run", "-itd",
+      "--memory", config.judge.MAX_MEMORY,
+      "--memory-swap", config.judge.MAX_MEMORY, 
+      "--mount", `type=bind,src=${toHostPath(workspace)}/${folderName},dst=/workspace`,
+      "gcc:14"])
 
   return stdout.replace("\n", "");
 }
 
-export async function stopContainer(containeID: string) {
-  await execAsync(`docker stop ${containeID}`);
-  await execAsync(`docker rm ${containeID}`)
-
+export async function stopContainer(containerID: string) {
+  await execFileAsync("docker",  ["rm", "-f", containerID]) //強制終了
 }
 
-export async function makeFileCpp(fileName: string, sourceCode: string) {
-  
+export async function makeFileCpp(fileName: string, sourceCode: string, codeLanguage: string, folderName: string) {
+  console.log("called makeFileCpp")
   // __dirnameはこのファイルのdirを示す(executionフォルダ)
   // const workspace = path.join(__dirname ,"../../../storage/tmp")
-  // console.log(workspace)
   // ディレクトリが存在しない場合は作成
-  await mkdir(workspace, { recursive: true })
+  await mkdir(`${workspace}/${folderName}`, { recursive: true })
+
+  let extension;
+  switch(codeLanguage){
+    case "c++":
+      extension = "cpp";
+      break;
+    case "python":
+      extension = "py";
+      break;
+    default:
+      console.log("language error");
+      extension = "cpp";
+  }
+
+
   // sourceCodeをtmpの中にかく(ファイルを作成)
-  console.log(fileName)
-  console.log(sourceCode)
-  await writeFile(`${workspace}/${fileName}.cpp`, sourceCode)
+  await writeFile(`${workspace}/${folderName}/${fileName}.${extension}`, sourceCode)
+}
+
+// makeFileで作ったフォルダ(UUID()以下の階層)を削除
+export async function removeFolder(folderName: string){
+  // recursive: 再帰的に
+  // force: 削除対象が存在しなくてもエラーを出さない。
+  await rm(`${workspace}/${folderName}`, { recursive: true, force: true })
 }
 
 
 
 export async function compileCpp(fileName: string, containerID: string): Promise<RunResponse> {
-
   // コンパイル
   try{
-    const command = `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`;
-    console.log("command = ", command);
-    await execAsync(
-    // --rmは実行後にdockerを閉じる
-    // --mountでdockerの中とフォルダを紐付け,  docker run --mount type=bind,src=<host-path>,dst=<container-path>
-    // gcc:14はDockerイメージ 
+    await execFileAsync(
     // g++ ....で実行コマンド
-    `docker exec ${containerID} g++ /workspace/${fileName}.cpp -o /workspace/${fileName}`
-    )
+    "docker",
+    ["exec", containerID, "g++", `/workspace/${fileName}.cpp`, "-o", `/workspace/${fileName}`]);
+
     return {//正常終了
       stdout: "",
       stderr: "",
       exitCode: 0,
     };
-
   }catch(err: any){//コンパイルエラーを検知
-    console.log("compile Err");
-    // 型アサーション: asは型が元からわかっている時にその型を支えるようにする
-    // 型変換を行っているのではなくeの型をtsが認識できるようにしている
-    //   実際のエラーの型:
-    //   {
-    //   name: "Error",
-    //   message: "...",
-    //   code: 1,
-    //   stdout: "",
-    //   stderr: "...",
-    // }
+    // console.log("compile Err in compileCpp");
     const e = err as Error & {
       code: number;
       stdout: string;
@@ -95,42 +109,60 @@ export async function compileCpp(fileName: string, containerID: string): Promise
 
 }
 
+
 export async function executeCpp(fileName: string, stdin: string, containerID: string):Promise<RunResponse> {
-
-  // const workspace = path.join(__dirname ,"../../../storage/tmp")
   // 実行
-  // spawn(command, [,args][,option])で利用
-  const child = spawn("docker", [
-    "exec",
-    "-i", // stdinを有効化
-    containerID,
-    `/workspace/${fileName}`
-  ]);
-  let stdout = "";
-  let stderr = "";
+  // trt-catchではspawnの非同期エラーに対応できないためresolveを使用(結果を待つ)
+  /// 正常終了でresolveを返却, 以上終了でrejectを返却
+  return new Promise((resolve, reject) => {
+    const child = spawn("docker", [
+      "exec", "-i", // stdinを有効化
+      containerID,
+      //2秒でtimeout, -s KILLでprogramでタイムアウト処理を止めれないようにする
+      "timeout", "-s", "KILL", String(config.judge.TIME_LIMIT_SEC),
+      `/workspace/${fileName}`
+    ]);
+    
+    let stdout = "";
+    let stderr = "";
 
-//   stdoutを監視する
-  child.stdout.on("data", (data: Buffer) => {
-  stdout += data.toString();
+    //   stdoutを監視する
+    child.stdout.on("data", (data: Buffer) => {
+      if(stdout.length < config.judge.MAX_OUTPUT) stdout += data.toString();
+      });
+
+    // stderrを監視
+    child.stderr.on("data", (data: Buffer) => {
+      if(stderr.length < config.judge.MAX_OUTPUT) stderr += data.toString();
     });
 
-// stderrを監視
-  child.stderr.on("data", (data: Buffer) => {
-    stderr += data.toString();
-  });
+    // spawn 自体の失敗(docker が見つからないなど)
+    child.on("error", (err) => {
+      reject(err);
+    });
 
-//   
-  child.stdin.write(stdin);
-  child.stdin.end();
+    //  標準入力を行う 
+    child.stdin.write(stdin);
+    // 標準入力を閉じる
+    child.stdin.end();
 
-  const exitCode = await new Promise<number>((resolve) => {
-    child.on("close", resolve);
-  });
-
-  return {
-    stdout,stderr, exitCode
-  }
+    // closeでchildが終了した際に呼ばれる
+    // childのexitCode(正常終了で-1)
+    console.log(stderr);
+    child.on("close", (code)=>{
+      if(code == 137){
+        console.log("TLE or MLE");
+        stderr = "Time or Memory Limit Exceeded";
+      }
+      resolve({
+        stdout,
+        stderr,
+        exitCode: code ?? -1,  // //number以外の値(null, undefinedで-1);
+      });
+    })
+  })
 }
+
 
 
 
