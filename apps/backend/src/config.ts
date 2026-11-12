@@ -13,7 +13,10 @@ export const config = {
   hostWorkspace: required("HOST_WORKSPACE"), // ホストPCの階層
   tmpDir: "/workspace/apps/backend/storage/tmp", // tmpフォルダの作成をする階層
   judge: {
-    maxConcurrency: 2,
-    maxQueue: 2
+    TIME_LIMIT_SEC: 2,
+    MAX_OUTPUT: 10**6, 
+    MAX_MEMORY: "1024m",
+    MAX_CONCURRENCY: 2,
+    MAX_QUEUE: 2
   }
 };

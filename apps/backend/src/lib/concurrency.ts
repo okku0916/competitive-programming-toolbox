@@ -9,11 +9,11 @@ export let waitQueue = Array();
 
 export function startRun(): Promise<void> {
     console.log("called start container", running);
-    if(running < config.judge.maxConcurrency){
+    if(running < config.judge.MAX_CONCURRENCY){
         running ++;
         return Promise.resolve();
     }
-    if(waitQueue.length < config.judge.maxQueue){
+    if(waitQueue.length < config.judge.MAX_QUEUE){
         // Promiseを作成してそのresolveをwaitQueueに入れる
         return new Promise<void>((resolve) => waitQueue.push(resolve))
     }

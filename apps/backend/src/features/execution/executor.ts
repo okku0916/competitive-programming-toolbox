@@ -9,6 +9,7 @@ import { mkdir, writeFile, rm } from 'node:fs/promises'
 
 
 import { toHostPath } from '../../lib/docker.js'
+import { config } from '../../config.js'
 
 
 //dirのpathを取得
@@ -32,7 +33,11 @@ const execFileAsync = promisify(execFile)
 export async function startContainer(folderName: string):Promise<string> {
   //-i 入力を受け取る, 
   const {stdout} = await execFileAsync("docker", 
-    ["run", "-itd", "--mount", `type=bind,src=${toHostPath(workspace)}/${folderName},dst=/workspace`, "gcc:14"])
+    ["run", "-itd",
+      "--memory", config.judge.MAX_MEMORY,
+      "--memory-swap", config.judge.MAX_MEMORY, 
+      "--mount", `type=bind,src=${toHostPath(workspace)}/${folderName},dst=/workspace`,
+      "gcc:14"])
 
   return stdout.replace("\n", "");
 }
@@ -66,7 +71,10 @@ export async function makeFileCpp(fileName: string, sourceCode: string, codeLang
   await writeFile(`${workspace}/${folderName}/${fileName}.${extension}`, sourceCode)
 }
 
+// makeFileで作ったフォルダ(UUID()以下の階層)を削除
 export async function removeFolder(folderName: string){
+  // recursive: 再帰的に
+  // force: 削除対象が存在しなくてもエラーを出さない。
   await rm(`${workspace}/${folderName}`, { recursive: true, force: true })
 }
 
@@ -102,9 +110,6 @@ export async function compileCpp(fileName: string, containerID: string): Promise
 }
 
 
-const TIME_LIMIT = 10
-const MAX_OUTPUT = 10**6
-
 export async function executeCpp(fileName: string, stdin: string, containerID: string):Promise<RunResponse> {
   // 実行
   // trt-catchではspawnの非同期エラーに対応できないためresolveを使用(結果を待つ)
@@ -114,7 +119,7 @@ export async function executeCpp(fileName: string, stdin: string, containerID: s
       "exec", "-i", // stdinを有効化
       containerID,
       //2秒でtimeout, -s KILLでprogramでタイムアウト処理を止めれないようにする
-      "timeout", "-s", "KILL", String(TIME_LIMIT),
+      "timeout", "-s", "KILL", String(config.judge.TIME_LIMIT_SEC),
       `/workspace/${fileName}`
     ]);
     
@@ -123,12 +128,12 @@ export async function executeCpp(fileName: string, stdin: string, containerID: s
 
     //   stdoutを監視する
     child.stdout.on("data", (data: Buffer) => {
-      if(stdout.length < MAX_OUTPUT) stdout += data.toString();
+      if(stdout.length < config.judge.MAX_OUTPUT) stdout += data.toString();
       });
 
     // stderrを監視
     child.stderr.on("data", (data: Buffer) => {
-      if(stderr.length < MAX_OUTPUT) stderr += data.toString();
+      if(stderr.length < config.judge.MAX_OUTPUT) stderr += data.toString();
     });
 
     // spawn 自体の失敗(docker が見つからないなど)
@@ -146,8 +151,8 @@ export async function executeCpp(fileName: string, stdin: string, containerID: s
     console.log(stderr);
     child.on("close", (code)=>{
       if(code == 137){
-        console.log("TLE");
-        stderr = "Time Limit Exceeded";
+        console.log("TLE or MLE");
+        stderr = "Time or Memory Limit Exceeded";
       }
       resolve({
         stdout,
